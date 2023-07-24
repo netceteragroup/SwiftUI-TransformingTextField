@@ -24,6 +24,9 @@ TextField(...)
 
 ```
 
+## New in 1.1.0
+
+Added support for `TextEditor` and `TextField` with vertical axis (iOS 16).
 
 ## TransformingTextFieldDelegate
 

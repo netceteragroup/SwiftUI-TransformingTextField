@@ -31,8 +31,12 @@ public struct TransformingTextFieldModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
+            .introspect(.textField(axis: .vertical), on: .iOS(.v16, .v17)) { textField in
+                delegate.textInput = textField
+                delegate.text = text
+            }
             .introspect(.textField, on: .iOS(.v14, .v15, .v16, .v17)) { textField in
-                delegate.textField = textField
+                delegate.textInput = textField
                 delegate.text = text
             }
     }
@@ -98,12 +102,12 @@ class TransformingTextFieldDelegate: NSObject {
 
     let transformer: TextFieldChangeTransformer
     var text: Binding<String>?
-    var originalDelegate: UITextFieldDelegate?
-    var textField: UITextField? {
+    var originalDelegate: AnyObject? // UITextFieldDelegate or UITextViewDelegate
+    var textInput: UITextInput? {
         didSet {
             if !isDelegating {
-                originalDelegate = textField?.delegate
-                textField?.delegate = self
+                originalDelegate = textInput?.anyDelegate
+                textInput?.anyDelegate = self
             }
         }
     }
@@ -111,9 +115,9 @@ class TransformingTextFieldDelegate: NSObject {
     /// Sets the cursor position. Prior to iOS 16.x, SwiftUI moves the cursor to the end after a delay.
     /// Here we check recursively and reset it if necessary.
     func setSelection(_ selection: UITextRange, for text: String, tries: Int = 20) {
-        guard tries > 0, textField?.selectedTextRange != selection, textField?.text == text else { return }
+        guard tries > 0, textInput?.selectedTextRange != selection, textInput?.text == text else { return }
 
-        textField?.selectedTextRange = selection
+        textInput?.selectedTextRange = selection
         // Check again after a short interval
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             self.setSelection(selection, for: text, tries: tries - 1)
@@ -122,7 +126,7 @@ class TransformingTextFieldDelegate: NSObject {
 
     /// Checks if this delegate is already in the chain, to avoid circular references.
     var isDelegating: Bool {
-        var delegate: UITextFieldDelegate? = textField?.delegate
+        var delegate = textInput?.anyDelegate
         while delegate != nil {
             if delegate === self {
                 return true
@@ -134,7 +138,7 @@ class TransformingTextFieldDelegate: NSObject {
 
     /// Applies all transformations, including any chained modifiers.
     func transform(range: NSRange, replacement: String) -> String {
-        guard let text = textField?.text else { return replacement }
+        guard let text = textInput?.text else { return replacement }
 
         var replacement = replacement
         // Allow chaining of transformation modifiers, invoking any other previously applied modifiers
@@ -146,36 +150,73 @@ class TransformingTextFieldDelegate: NSObject {
         }
         return replacement
     }
-}
 
-extension TransformingTextFieldDelegate: UITextFieldDelegate {
     /// Takes over the updating of the text field's text, applying the given transformation to any text changes, and
     /// preserving the cursor's logical position. This works around SwiftUI's current undesirable behavior of throwing
     /// the cursor to the end of the field whenever the text buffer is modified programmatically.
-    func textField(
-        _ textField: UITextField,
-        shouldChangeCharactersIn range: NSRange,
-        replacementString string: String
-    ) -> Bool {
-        guard var text = textField.text else { return false }
+    func replaceCharacters(in range: NSRange, with string: String) {
+        guard let textInput else { return }
+        var text = textInput.text
 
         let replacement = transform(range: range, replacement: string)
         // Replace the text and update the text field and binding
         let indexRange = String.Index(utf16Offset: range.lowerBound, in: text)
             ..< String.Index(utf16Offset: range.upperBound, in: text)
         text.replaceSubrange(indexRange, with: replacement)
-        textField.text = text
+        textInput.text = text
         self.text?.wrappedValue = text
 
         // Update the cursor position
-        if let cursorPosition = textField.position(
-            from: textField.beginningOfDocument, offset: range.location + replacement.count
-        ), let selection = textField.textRange(from: cursorPosition, to: cursorPosition) {
+        if let cursorPosition = textInput.position(
+            from: textInput.beginningOfDocument, offset: range.location + replacement.count
+        ), let selection = textInput.textRange(from: cursorPosition, to: cursorPosition) {
             setSelection(selection, for: text)
         }
+    }
+}
 
+extension TransformingTextFieldDelegate: UITextFieldDelegate {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        replaceCharacters(in: range, with: string)
         // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
         return false
+    }
+}
+
+extension TransformingTextFieldDelegate: UITextViewDelegate {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        replaceCharacters(in: range, with: text)
+        // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
+        return false
+    }
+}
+
+extension UITextInput {
+    /// Abstracts the text
+    var text: String {
+        get {
+            guard let range = textRange(from: beginningOfDocument, to: endOfDocument) else { return "" }
+            return text(in: range) ?? ""
+        }
+        set {
+            guard let range = textRange(from: beginningOfDocument, to: endOfDocument) else { return }
+            replace(range, withText: newValue)
+        }
+    }
+
+    /// Abstracts the delegate (either a UITextFieldDelegate or a UITextViewDelegate)
+    var anyDelegate: AnyObject? {
+        get {
+            (self as? UITextField)?.delegate ?? (self as? UITextView)?.delegate
+        }
+        set {
+            (self as? UITextField)?.delegate = newValue as? UITextFieldDelegate
+            (self as? UITextView)?.delegate = newValue as? UITextViewDelegate
+        }
     }
 }
 
@@ -223,9 +264,26 @@ public struct TransformingTextField_Previews: PreviewProvider {
                                 }
                             }
                             .characterLimit(5, in: $text)
-
                     } header: {
                         Text("SwiftUI TextField Examples")
+                    }
+
+                    if #available(iOS 16, *) {
+                        Section {
+                            TextField("Allow Only Ten Characters and Uppercase", text: $text, axis: .vertical)
+                                .characterLimit(10, in: $text)
+                                .uppercased(text: $text)
+                        } header: {
+                            Text("TextField with Vertical Axis (UITextView)")
+                        }
+                    }
+
+                    Section {
+                        TextEditor(text: $text)
+                            .characterLimit(10, in: $text)
+                            .uppercased(text: $text)
+                    } header: {
+                        Text("TextEditor (UITextView)")
                     }
 
                     Section {
