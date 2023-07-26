@@ -9,6 +9,8 @@ Enter...
 
 ## TransformingTextFieldModifier
 
+![docs/demo1.gif](docs/demo1.gif)
+
 `TransformingTextFieldModifier` applies a transformation to characters as they're typed into a `TextField`.
 It uses view introspection (thanks to [SwiftUI-Introspect](https://github.com/siteline/SwiftUI-Introspect)) to find the underlying `UITextField` (so it can even be applied to custom `UIViewRepresentable`s that wrap a `UITextField`). 🎁
 
@@ -26,7 +28,7 @@ TextField(...)
 
 ## New in 1.1.0
 
-Added support for `TextEditor` and `TextField` with vertical axis (iOS 16).
+Added support for `TextEditor` and `TextField` with vertical axis on iOS 16 (both backed by a `UITextView`).
 
 ## TransformingTextFieldDelegate
 
