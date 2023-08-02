@@ -232,67 +232,61 @@ public struct TransformingTextField_Previews: PreviewProvider {
     public struct Example: View {
         public init() {}
 
-        @State private var text = ""
+        @State private var text = Array(repeating: "", count: 7)
 
         public var body: some View {
             NavigationView {
                 List {
                     Section {
-                        Text(text).foregroundColor(.secondary)
-                    } header: {
-                        Text("Binding Value")
-                    }
+                        TextField("Strip Diacritics and Uppercase", text: $text[0])
+                            .strippingDiacritics(in: $text[0])
+                            .uppercased(text: $text[0])
 
-                    Section {
-                        TextField("Strip Diacritics and Uppercase", text: $text)
-                            .strippingDiacritics(in: $text)
-                            .uppercased(text: $text)
+                        TextField("Allow Only Characters in a Set", text: $text[1])
+                            .allowingCharacters(in: .letters.union(.whitespaces), in: $text[1])
 
-                        TextField("Allow Only Characters in a Set", text: $text)
-                            .allowingCharacters(in: .letters.union(.whitespaces), in: $text)
+                        TextField("Allow Only Four Digits", text: $text[2])
+                            .characterLimit(4, in: $text[2])
+                            .allowingCharacters(in: .decimalDigits, in: $text[2])
 
-                        TextField("Allow Only Four Digits", text: $text)
-                            .characterLimit(4, in: $text)
-                            .allowingCharacters(in: .decimalDigits, in: $text)
-
-                        TextField("Custom Closure (5 Emojis Only) 😉", text: $text)
-                            .transformingChanges(in: $text) { text, range, replacement in
+                        TextField("Custom Closure (5 Emojis Only) 😉", text: $text[3])
+                            .transformingChanges(in: $text[3]) { text, range, replacement in
                                 replacement.filter { character in
                                     guard let scalar = character.unicodeScalars.first else { return false }
                                     return scalar.properties.isEmoji
                                         && (scalar.value >= 0x203C || character.unicodeScalars.count > 1)
                                 }
                             }
-                            .characterLimit(5, in: $text)
+                            .characterLimit(5, in: $text[3])
                     } header: {
                         Text("SwiftUI TextField Examples")
                     }
 
                     if #available(iOS 16, *) {
                         Section {
-                            TextField("Allow Only Ten Characters and Uppercase", text: $text, axis: .vertical)
-                                .characterLimit(10, in: $text)
-                                .uppercased(text: $text)
+                            TextField("Allow Only Ten Characters and Uppercase", text: $text[4], axis: .vertical)
+                                .characterLimit(10, in: $text[4])
+                                .uppercased(text: $text[4])
                         } header: {
                             Text("TextField with Vertical Axis (UITextView)")
                         }
                     }
 
                     Section {
-                        TextEditor(text: $text)
-                            .characterLimit(10, in: $text)
-                            .uppercased(text: $text)
+                        TextEditor(text: $text[5])
+                            .characterLimit(10, in: $text[5])
+                            .uppercased(text: $text[5])
                     } header: {
                         Text("TextEditor (UITextView)")
                     }
 
                     Section {
-                        CustomTextField(title: "Allow Only Six Letters and Uppercase", text: $text)
-                            .uppercased(text: $text)
-                            .transformingChanges(in: $text) { text, range, replacement in
+                        CustomTextField(title: "Allow Only Six Letters and Uppercase", text: $text[6])
+                            .uppercased(text: $text[6])
+                            .transformingChanges(in: $text[6]) { text, range, replacement in
                                 replacement.filter(\.isLetter)
                             }
-                            .characterLimit(6, in: $text)
+                            .characterLimit(6, in: $text[6])
                     } header: {
                         Text("UITextField UIViewRepresentable Example")
                     }
