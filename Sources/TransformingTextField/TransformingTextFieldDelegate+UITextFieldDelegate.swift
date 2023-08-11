@@ -21,35 +21,35 @@ extension TransformingTextFieldDelegate: UITextFieldDelegate {
     /// `UITextFieldDelegate` methods and passing them to the original, SwiftUI delegates.
 
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        originalDelegate?.textFieldShouldBeginEditing(textField) ?? true
+        originalDelegate?.textFieldShouldBeginEditing?(textField) ?? true
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        originalDelegate?.textFieldDidBeginEditing(textField)
+        originalDelegate?.textFieldDidBeginEditing?(textField)
     }
 
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        originalDelegate?.textFieldShouldEndEditing(textField) ?? true
+        originalDelegate?.textFieldShouldEndEditing?(textField) ?? true
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        originalDelegate?.textFieldDidEndEditing(textField)
+        originalDelegate?.textFieldDidEndEditing?(textField)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-        originalDelegate?.textFieldDidEndEditing(textField, reason: reason)
+        originalDelegate?.textFieldDidEndEditing?(textField, reason: reason)
     }
 
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        originalDelegate?.textFieldShouldClear(textField) ?? true
+        originalDelegate?.textFieldShouldClear?(textField) ?? true
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        originalDelegate?.textFieldShouldReturn(textField) ?? true
+        originalDelegate?.textFieldShouldReturn?(textField) ?? true
     }
 
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        originalDelegate?.textFieldDidChangeSelection(textField)
+        originalDelegate?.textFieldDidChangeSelection?(textField)
     }
 }
 
@@ -60,15 +60,15 @@ extension TransformingTextFieldDelegate {
     func textField(
         _ textField: UITextField, editMenuForCharactersIn range: NSRange, suggestedActions: [UIMenuElement]
     ) -> UIMenu? {
-        originalDelegate?.textField(textField, editMenuForCharactersIn: range, suggestedActions: suggestedActions)
+        originalDelegate?.textField?(textField, editMenuForCharactersIn: range, suggestedActions: suggestedActions)
     }
 
     func textField(_ textField: UITextField, willPresentEditMenuWith animator: UIEditMenuInteractionAnimating) {
-        originalDelegate?.textField(textField, willPresentEditMenuWith: animator)
+        originalDelegate?.textField?(textField, willPresentEditMenuWith: animator)
     }
 
     func textField(_ textField: UITextField, willDismissEditMenuWith animator: UIEditMenuInteractionAnimating) {
-        originalDelegate?.textField(textField, willDismissEditMenuWith: animator)
+        originalDelegate?.textField?(textField, willDismissEditMenuWith: animator)
     }
 }
 #endif

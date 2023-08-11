@@ -19,27 +19,27 @@ extension TransformingTextFieldDelegate: UITextViewDelegate {
     /// `UITextViewDelegate` methods and passing them to the original, SwiftUI delegates.
 
     func textViewDidChange(_ textView: UITextView) {
-        originalDelegate?.textViewDidChange(textView)
+        originalDelegate?.textViewDidChange?(textView)
     }
 
     func textViewDidChangeSelection(_ textView: UITextView) {
-        originalDelegate?.textViewDidChangeSelection(textView)
+        originalDelegate?.textViewDidChangeSelection?(textView)
     }
 
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        originalDelegate?.textViewShouldBeginEditing(textView) ?? true
+        originalDelegate?.textViewShouldBeginEditing?(textView) ?? true
     }
 
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-        originalDelegate?.textViewShouldEndEditing(textView) ?? true
+        originalDelegate?.textViewShouldEndEditing?(textView) ?? true
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
-        originalDelegate?.textViewDidBeginEditing(textView)
+        originalDelegate?.textViewDidBeginEditing?(textView)
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        originalDelegate?.textViewDidEndEditing(textView)
+        originalDelegate?.textViewDidEndEditing?(textView)
     }
 }
 
@@ -48,17 +48,17 @@ extension TransformingTextFieldDelegate: UITextViewDelegate {
 @available(iOS 16, *)
 extension TransformingTextFieldDelegate {
     func textView(_ textView: UITextView, willDismissEditMenuWith animator: UIEditMenuInteractionAnimating) {
-        originalDelegate?.textView(textView, willDismissEditMenuWith: animator)
+        originalDelegate?.textView?(textView, willDismissEditMenuWith: animator)
     }
 
     func textView(_ textView: UITextView, willPresentEditMenuWith animator: UIEditMenuInteractionAnimating) {
-        originalDelegate?.textView(textView, willPresentEditMenuWith: animator)
+        originalDelegate?.textView?(textView, willPresentEditMenuWith: animator)
     }
 
     func textView(
         _ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]
     ) -> UIMenu? {
-        originalDelegate?.textView(textView, editMenuForTextIn: range, suggestedActions: suggestedActions)
+        originalDelegate?.textView?(textView, editMenuForTextIn: range, suggestedActions: suggestedActions)
     }
 }
 #endif
@@ -68,26 +68,26 @@ extension TransformingTextFieldDelegate {
 @available(iOS 17, *)
 extension TransformingTextFieldDelegate {
     func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-        originalDelegate?.textView(textView, primaryActionFor: textItem, defaultAction: defaultAction)
+        originalDelegate?.textView?(textView, primaryActionFor: textItem, defaultAction: defaultAction)
     }
 
     func textView(
         _ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu
     ) -> UITextItem.MenuConfiguration? {
-        originalDelegate?.textView(textView, menuConfigurationFor: textItem, defaultMenu: defaultMenu)
+        originalDelegate?.textView?(textView, menuConfigurationFor: textItem, defaultMenu: defaultMenu)
     }
 
     func textView(
         _ textView: UITextView, textItemMenuWillEndFor textItem: UITextItem, animator: UIContextMenuInteractionAnimating
     ) {
-        originalDelegate?.textView(textView, textItemMenuWillEndFor: textItem, animator: animator)
+        originalDelegate?.textView?(textView, textItemMenuWillEndFor: textItem, animator: animator)
     }
 
     func textView(
         _ textView: UITextView, textItemMenuWillDisplayFor textItem: UITextItem,
         animator: UIContextMenuInteractionAnimating
     ) {
-        originalDelegate?.textView(textView, textItemMenuWillDisplayFor: textItem, animator: animator)
+        originalDelegate?.textView?(textView, textItemMenuWillDisplayFor: textItem, animator: animator)
     }
 }
 #endif
