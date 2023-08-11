@@ -181,9 +181,27 @@ extension TransformingTextFieldDelegate: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
+        originalDelegate?.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
         replaceCharacters(in: range, with: string)
         // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
         return false
+    }
+
+    public func textFieldDidBeginEditing(textField: UITextField) {
+        originalDelegate?.textFieldDidBeginEditing(textField)
+    }
+
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        originalDelegate?.textFieldDidEndEditing(textField)
+    }
+
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        originalDelegate?.textFieldShouldReturn(textField)
+        return true
+    }
+
+    public func textFieldDidChangeSelection(_ textField: UITextField) {
+        originalDelegate?.textFieldDidChangeSelection(textField)
     }
 }
 
