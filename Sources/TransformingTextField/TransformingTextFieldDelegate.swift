@@ -28,6 +28,10 @@ class TransformingTextFieldDelegate: NSObject {
         }
     }
 
+    /// To track and work around multiple calls when the user accepts an autocomplete suggestion
+    var lastReplacementString = ""
+    var lastReplacementDate = Date.distantPast
+
     /// Sets the cursor position. Prior to iOS 16.x, SwiftUI moves the cursor to the end after a delay.
     /// Here we check recursively and reset it if necessary.
     func setSelection(_ selection: UITextRange, for text: String, tries: Int = 20) {
@@ -71,13 +75,10 @@ class TransformingTextFieldDelegate: NSObject {
     /// preserving the cursor's logical position. This works around SwiftUI's current undesirable behavior of throwing
     /// the cursor to the end of the field whenever the text buffer is modified programmatically.
     func replaceCharacters(in range: NSRange, with string: String) {
-        guard let textInput else { return }
-        var text = textInput.text
+        guard var text = textInput?.text, let indexRange = Range(range, in: text), let textInput else { return }
 
         let replacement = transform(range: range, replacement: string)
         // Replace the text and update the text field and binding
-        let indexRange = String.Index(utf16Offset: range.lowerBound, in: text)
-        ..< String.Index(utf16Offset: range.upperBound, in: text)
         text.replaceSubrange(indexRange, with: replacement)
         textInput.text = text
         self.text?.wrappedValue = text

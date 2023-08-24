@@ -12,6 +12,16 @@ extension TransformingTextFieldDelegate: UITextFieldDelegate {
     func textField(
         _ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String
     ) -> Bool {
+        // Framework bug workaround:
+        // Prevent multiple calls with the same replacement string when the user accepts an autocorrect suggestion
+        if textField.autocorrectionType != .no, string == lastReplacementString,
+           -lastReplacementDate.timeIntervalSinceNow < 0.3
+        {
+            return false
+        }
+        lastReplacementString = string
+        lastReplacementDate = Date()
+
         replaceCharacters(in: range, with: string)
         // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
         return false
