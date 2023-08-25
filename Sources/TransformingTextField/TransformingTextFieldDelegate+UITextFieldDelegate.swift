@@ -22,9 +22,8 @@ extension TransformingTextFieldDelegate: UITextFieldDelegate {
         lastReplacementString = string
         lastReplacementDate = Date()
 
-        replaceCharacters(in: range, with: string)
-        // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
-        return false
+        // Allow the default system behavior only if no changes were made already
+        return !replaceCharacters(in: range, with: string)
     }
 
     /// Since we don't really know what delegates SwiftUI is handling, we're intercepting ALL known

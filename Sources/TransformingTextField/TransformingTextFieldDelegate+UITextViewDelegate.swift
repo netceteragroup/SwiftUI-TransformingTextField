@@ -10,9 +10,18 @@ import UIKit
 
 extension TransformingTextFieldDelegate: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        replaceCharacters(in: range, with: text)
-        // We already updated the text, binding and cursor position. Stop the default SwiftUI behavior.
-        return false
+        // Framework bug workaround:
+        // Prevent multiple calls with the same replacement string when the user accepts an autocorrect suggestion
+        if textView.autocorrectionType != .no, text == lastReplacementString,
+           -lastReplacementDate.timeIntervalSinceNow < 0.3
+        {
+            return false
+        }
+        lastReplacementString = text
+        lastReplacementDate = Date()
+
+        // Allow the default system behavior only if no changes were made already
+        return !replaceCharacters(in: range, with: text)
     }
 
     /// Since we don't really know what delegates SwiftUI is handling, we're intercepting ALL known
