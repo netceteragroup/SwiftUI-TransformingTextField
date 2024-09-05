@@ -13,7 +13,7 @@ extension TransformingTextFieldDelegate: UITextViewDelegate {
         // Framework bug workaround:
         // Prevent multiple calls with the same replacement string when the user accepts an autocorrect suggestion
         if textView.autocorrectionType != .no, text == lastReplacementString,
-           -lastReplacementDate.timeIntervalSinceNow < 0.3
+           -lastReplacementDate.timeIntervalSinceNow < 0.1
         {
             return false
         }
