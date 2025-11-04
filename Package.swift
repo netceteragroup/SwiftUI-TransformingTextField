@@ -14,7 +14,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/siteline/swiftui-introspect", from: "1.3.0")
+        .package(url: "https://github.com/siteline/SwiftUI-Introspect", from: "26.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
