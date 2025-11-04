@@ -31,11 +31,11 @@ public struct TransformingTextFieldModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .introspect(.textField(axis: .vertical), on: .iOS(.v16...)) { textField in
+            .introspect(.textField(axis: .vertical), on: .iOS(.v16, .v17, .v18, .v26)) { textField in
                 delegate.textInput = textField
                 delegate.text = text
             }
-            .introspect(.textField, on: .iOS(.v16...)) { textField in
+            .introspect(.textField, on: .iOS(.v16, .v17, .v18, .v26)) { textField in
                 delegate.textInput = textField
                 delegate.text = text
             }
